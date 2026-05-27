@@ -1,0 +1,31 @@
+name: Claude Code — PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: anthropics/claude-code-action@beta
+        with:
+          anthropic_api_key: ${{ secrets.ANTHROPIC_API_KEY }}
+          custom_instructions: |
+            Review this PR for a Next.js React component generator.
+            Focus on: TypeScript correctness, Tailwind usage, accessibility,
+            performance (unnecessary re-renders), and security.
+            Be concise — flag real issues only, skip nitpicks.
+          direct_prompt: |
+            Review the changes in this pull request. Analyze:
+            1. Code quality and TypeScript correctness
+            2. Security issues (XSS, exposed secrets)
+            3. Performance problems
+            4. Accessibility (aria labels, keyboard nav)
+            Post a clear, actionable review comment.
