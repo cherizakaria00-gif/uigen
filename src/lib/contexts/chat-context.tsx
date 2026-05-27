@@ -5,6 +5,7 @@ import {
   useContext,
   ReactNode,
   useEffect,
+  useState,
 } from "react";
 import { useChat as useAIChat } from "@ai-sdk/react";
 import { Message } from "ai";
@@ -22,6 +23,8 @@ interface ChatContextType {
   handleInputChange: (e: React.ChangeEvent<HTMLTextAreaElement>) => void;
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
   status: string;
+  modelId: string;
+  setModelId: (id: string) => void;
 }
 
 const ChatContext = createContext<ChatContextType | undefined>(undefined);
@@ -32,6 +35,7 @@ export function ChatProvider({
   initialMessages = [],
 }: ChatContextProps & { children: ReactNode }) {
   const { fileSystem, handleToolCall } = useFileSystem();
+  const [modelId, setModelId] = useState("claude-haiku-4-5");
 
   const {
     messages,
@@ -45,13 +49,13 @@ export function ChatProvider({
     body: {
       files: fileSystem.serialize(),
       projectId,
+      modelId,
     },
     onToolCall: ({ toolCall }) => {
       handleToolCall(toolCall);
     },
   });
 
-  // Track anonymous work
   useEffect(() => {
     if (!projectId && messages.length > 0) {
       setHasAnonWork(messages, fileSystem.serialize());
@@ -66,6 +70,8 @@ export function ChatProvider({
         handleInputChange,
         handleSubmit,
         status,
+        modelId,
+        setModelId,
       }}
     >
       {children}

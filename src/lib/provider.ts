@@ -506,7 +506,16 @@ export default function App() {
   }
 }
 
-export function getLanguageModel() {
+export const AVAILABLE_MODELS = [
+  { id: "claude-haiku-4-5",      label: "Haiku 4.5",   description: "Rapide & économique" },
+  { id: "claude-sonnet-4-5",     label: "Sonnet 4.5",  description: "Équilibré" },
+  { id: "claude-sonnet-4-6",     label: "Sonnet 4.6",  description: "Plus capable" },
+  { id: "claude-opus-4-5",       label: "Opus 4.5",    description: "Le plus puissant" },
+] as const;
+
+export type ModelId = typeof AVAILABLE_MODELS[number]["id"];
+
+export function getLanguageModel(modelId?: string) {
   const apiKey = process.env.ANTHROPIC_API_KEY?.trim();
 
   if (!apiKey || apiKey === "your-api-key-here") {
@@ -518,5 +527,9 @@ export function getLanguageModel() {
     return new MockLanguageModel("mock-" + MODEL);
   }
 
-  return anthropic(MODEL);
+  const selectedModel = modelId && AVAILABLE_MODELS.find(m => m.id === modelId)
+    ? modelId
+    : MODEL;
+
+  return anthropic(selectedModel);
 }

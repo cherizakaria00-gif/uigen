@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -15,6 +15,7 @@ import { PreviewFrame } from "@/components/preview/PreviewFrame";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { HeaderActions } from "@/components/HeaderActions";
 import { Sidebar } from "@/components/Sidebar";
+import { getAnonWorkData } from "@/lib/anon-work-tracker";
 
 interface MainContentProps {
   user?: {
@@ -33,10 +34,21 @@ interface MainContentProps {
 
 export function MainContent({ user, project }: MainContentProps) {
   const [activeView, setActiveView] = useState<"preview" | "code">("preview");
+  const [anonData, setAnonData] = useState<{ messages: any[]; fileSystemData: any } | null>(null);
+
+  useEffect(() => {
+    if (!user && !project) {
+      const saved = getAnonWorkData();
+      if (saved) setAnonData(saved);
+    }
+  }, [user, project]);
+
+  const initialData = project?.data ?? anonData?.fileSystemData;
+  const initialMessages = project?.messages ?? anonData?.messages;
 
   return (
-    <FileSystemProvider initialData={project?.data}>
-      <ChatProvider projectId={project?.id} initialMessages={project?.messages}>
+    <FileSystemProvider initialData={initialData}>
+      <ChatProvider projectId={project?.id} initialMessages={initialMessages}>
         <div className="h-screen w-screen overflow-hidden bg-neutral-50 flex">
           {/* Sidebar */}
           <Sidebar user={user} projectId={project?.id} />

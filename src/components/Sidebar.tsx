@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import {
   Plus,
   Search,
@@ -17,6 +17,7 @@ import { signOut } from "@/actions";
 import { getProjects } from "@/actions/get-projects";
 import { createProject } from "@/actions/create-project";
 import { AuthDialog } from "@/components/auth/AuthDialog";
+import { ImageGenerator } from "@/components/ImageGenerator";
 
 interface SidebarProps {
   user?: { id: string; email: string } | null;
@@ -31,7 +32,6 @@ interface Project {
 
 export function Sidebar({ user, projectId }: SidebarProps) {
   const router = useRouter();
-  const pathname = usePathname();
   const [projects, setProjects] = useState<Project[]>([]);
   const [search, setSearch] = useState("");
   const [showSearch, setShowSearch] = useState(false);
@@ -106,6 +106,8 @@ export function Sidebar({ user, projectId }: SidebarProps) {
           <Sparkles className="h-4 w-4 text-neutral-500" />
           Artéfacts
         </button>
+
+        <ImageGenerator />
       </div>
 
       {/* Products section */}

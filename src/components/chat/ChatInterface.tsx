@@ -9,7 +9,7 @@ import { useChat } from "@/lib/contexts/chat-context";
 export function ChatInterface() {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const [images, setImages] = useState<string[]>([]);
-  const { messages, input, handleInputChange, handleSubmit, status } = useChat();
+  const { messages, input, handleInputChange, handleSubmit, status, modelId, setModelId } = useChat();
 
   // Auto-scroll to bottom when new messages arrive
   useEffect(() => {
@@ -38,6 +38,8 @@ export function ChatInterface() {
           isLoading={status === "submitted" || status === "streaming"}
           images={images}
           onImagesChange={setImages}
+          modelId={modelId}
+          onModelChange={setModelId}
         />
       </div>
     </div>

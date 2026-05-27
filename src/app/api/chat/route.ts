@@ -3,6 +3,7 @@ import { VirtualFileSystem } from "@/lib/file-system";
 import { streamText, appendResponseMessages } from "ai";
 import { buildStrReplaceTool } from "@/lib/tools/str-replace";
 import { buildFileManagerTool } from "@/lib/tools/file-manager";
+import { buildGenerateImageTool } from "@/lib/tools/generate-image";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { getLanguageModel } from "@/lib/provider";
@@ -13,7 +14,8 @@ export async function POST(req: Request) {
     messages,
     files,
     projectId,
-  }: { messages: any[]; files: Record<string, FileNode>; projectId?: string } =
+    modelId,
+  }: { messages: any[]; files: Record<string, FileNode>; projectId?: string; modelId?: string } =
     await req.json();
 
   messages.unshift({
@@ -28,7 +30,7 @@ export async function POST(req: Request) {
   const fileSystem = new VirtualFileSystem();
   fileSystem.deserializeFromNodes(files);
 
-  const model = getLanguageModel();
+  const model = getLanguageModel(modelId);
   // Use fewer steps for mock provider to prevent repetition
   const isMockProvider = !process.env.ANTHROPIC_API_KEY;
   const result = streamText({
@@ -42,6 +44,7 @@ export async function POST(req: Request) {
     tools: {
       str_replace_editor: buildStrReplaceTool(fileSystem),
       file_manager: buildFileManagerTool(fileSystem),
+      generate_image: buildGenerateImageTool(),
     },
     onFinish: async ({ response }) => {
       // Save to project if projectId is provided and user is authenticated
